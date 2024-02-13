@@ -23,7 +23,7 @@ OBJLIB	=	$(SRCLIB:.c=.o)
 
 OBJNAME	=	$(SRCNAME:.c=.o)
 
-NAME	=	minishell
+NAME	=	mysh
 
 $(NAME) : 	$(LIB) $(OBJNAME)
 			gcc -o $(NAME) $(OBJNAME) -lmy -L./ -g3

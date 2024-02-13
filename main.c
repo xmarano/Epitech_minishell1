@@ -10,8 +10,14 @@
 void ls_shell(char **argv, char **env)
 {
     char *str[] = {"/bin/ls", NULL};
+    int fork_info = fork();
 
-    execve(str[0], str, env);
+    if (fork_info == 0) {
+        execve(str[0], str, env);
+        return;
+    } else {
+        wait(NULL);
+    }
 }
 
 int main(int argc, char **argv, char **env)
@@ -22,10 +28,6 @@ int main(int argc, char **argv, char **env)
     while (1) {
         my_printf("➤ ");
         input = malloc(input_size);
-        if (input == NULL) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
         getline(&input, &input_size, stdin);
         if (my_strcmp("ls\n", input) == 0)
             ls_shell(argv, env);
