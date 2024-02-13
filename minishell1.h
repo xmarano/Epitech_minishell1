@@ -8,4 +8,8 @@
 #ifndef MINISHELL1_H
     #define MINISHELL1_H
 
+typedef struct S {
+    char *input;
+} S_t;
+
 #endif

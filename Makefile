@@ -11,7 +11,9 @@ SRCLIB	=	lib/my_atoi.c 		\
 			lib/my_put_nbr.c 	\
 			lib/my_putchar.c	\
 			lib/my_putstr.c		\
+			lib/my_strcat.c		\
 			lib/my_strcmp.c		\
+			lib/my_strcpy.c		\
 			lib/my_strdup.c 	\
 			lib/my_strlen.c 	\
 

@@ -7,9 +7,10 @@
 #include "minishell1.h"
 #include "my.h"
 
-void ls_shell(char **argv, char **env)
+void shell_command(char **argv, char **env, S_t s)
 {
-    char *str[] = {"/bin/ls", NULL};
+    char *str[] = {"/bin/", NULL};
+    str[0] = my_strcat(str[0], s.input);
     int fork_info = fork();
 
     if (fork_info == 0) {
@@ -20,18 +21,29 @@ void ls_shell(char **argv, char **env)
     }
 }
 
-int main(int argc, char **argv, char **env)
+void shell(char **argv, char **env)
 {
-    char *input;
     size_t input_size = 0;
+    int n = 0;
+    S_t s;
 
     while (1) {
         my_printf("➤ ");
-        input = malloc(input_size);
-        getline(&input, &input_size, stdin);
-        if (my_strcmp("ls\n", input) == 0)
-            ls_shell(argv, env);
-        free(input);
+        s.input = malloc(input_size);
+        getline(&s.input, &input_size, stdin);
+        for (int i = 0; s.input[i] != '\0'; i++)
+            n = i;
+        s.input[n] = '\0';
+        shell_command(argv, env, s);
+        free(s.input);
     }
+    return;
+}
+
+int main(int argc, char **argv, char **env)
+{
+    if (argc != 1)
+        return 84;
+    shell(argv, env);
     return 0;
 }
