@@ -19,6 +19,7 @@ int my_strlen(char const *str);
 int my_putstr(char const *str);
 int my_put_nbr_recursive(int nb);
 char *my_strdup(char const *src);
+char **str_to_word_array(char *str);
 int my_printf(const char *format, ...);
 char *my_strcpy(char *dest, char const *src);
 char *my_strcat(char *dest, char const *src);

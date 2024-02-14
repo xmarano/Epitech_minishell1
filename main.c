@@ -7,15 +7,29 @@
 #include "minishell1.h"
 #include "my.h"
 
-void shell_command(char **argv, char **env, S_t s)
+static void check_basic(S_t *s)
 {
-    char *str[] = {"/bin/", NULL};
-    str[0] = my_strcat(str[0], s.input);
+    if (my_strcmp(s->input, "exit") == 0)
+        exit(0);
+}
+
+void input_to_arr(S_t *s)
+{
+    char *bin = "/bin/\0";
+
+    s->arr = malloc(50 * sizeof(char *));
+    s->arr = str_to_word_array(s->input);
+    bin = my_strcat(bin, s->arr[0]);
+    s->arr[0] = bin;
+}
+
+void shell_command(char **argv, char **env, S_t *s)
+{
     int fork_info = fork();
 
     if (fork_info == 0) {
-        execve(str[0], str, env);
-        return;
+        execve(s->arr[0], s->arr, env);
+        exit(0);
     } else {
         wait(NULL);
     }
@@ -28,13 +42,17 @@ void shell(char **argv, char **env)
     S_t s;
 
     while (1) {
-        my_printf("➤ ");
+        my_printf("\x1b[38;5;208m" "➤  " "\x1b[36m" "~ " "\x1b[0m");
         s.input = malloc(input_size);
         getline(&s.input, &input_size, stdin);
-        for (int i = 0; s.input[i] != '\0'; i++)
-            n = i;
-        s.input[n] = '\0';
-        shell_command(argv, env, s);
+        if (my_strcmp(s.input, "\n\0") != 0) {
+            for (int i = 0; s.input[i] != '\0'; i++)
+                n = i;
+            s.input[n] = '\0';
+            input_to_arr(&s);
+            check_basic(&s);
+            shell_command(argv, env, &s);
+        }
         free(s.input);
     }
     return;

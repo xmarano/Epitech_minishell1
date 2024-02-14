@@ -10,6 +10,7 @@
 
 typedef struct S {
     char *input;
+    char **arr;
 } S_t;
 
 #endif
