@@ -24,4 +24,5 @@ int my_printf(const char *format, ...);
 char *my_strcpy(char *dest, char const *src);
 char *my_strcat(char *dest, char const *src);
 int my_strcmp(char const *s1, char const *s2);
+char *my_strncpy(char *dest, char const *src, int n);
 #endif

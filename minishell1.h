@@ -11,6 +11,8 @@
 typedef struct S {
     char *input;
     char **arr;
+    char **arr_path;
+    char **arr_execve;
 } S_t;
 
 #endif

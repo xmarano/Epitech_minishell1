@@ -25,7 +25,7 @@ char **str_to_word_array(char *str)
             size++;
         if (is_alphanum2(str[i]) == 1 && is_alphanum2(str[i + 1]) == 0) {
             arr[x] = malloc(sizeof(char) * (size + 1));
-            strncpy(arr[x], &str[i - size + 1], size);
+            my_strncpy(arr[x], &str[i - size + 1], size);
             size = 0;
             x++;
         }
