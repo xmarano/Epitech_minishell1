@@ -20,6 +20,8 @@ SRCLIB	=	lib/my_atoi.c 		\
 			lib/str_to_word_array.c 	\
 
 SRCNAME	=	main.c				\
+			istty.c 			\
+			isnottty.c 			\
 
 LIB 	=	libmy.a
 
