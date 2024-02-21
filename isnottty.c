@@ -72,24 +72,51 @@ int execute2(char **argv, char **env, S_t *s)
     return 0;
 }
 
+static void error_handling(S_t *s)
+{
+    s->nb = 0;
+    for (int i = 0; s->input[i] != '\0'; i++) {
+        if (s->input[i] == ' ' || s->input[i] == '\t' || s->input[i] == '\n')
+            s->nb++;
+    }
+}
+
+static void remove_n(S_t *s)
+{
+    int n = 0;
+
+    for (int i = 0; s->input[i] != '\0'; i++)
+        n = i;
+    s->input[n] = '\0';
+}
+
+static void error_handling2(S_t *s)
+{
+    s->nb = 0;
+    for (int i = 0; s->input[i] != '\0'; i++) {
+        if (s->input[i] < 0 || s->input[i] > 127)
+            s->nb++;
+    }
+}
+
 int isnottty(char **argv, char **env, S_t *s)
 {
     size_t input_size = 0;
-    int n = 0;
 
-        s->input = malloc(input_size);
-        getline(&s->input, &input_size, stdin);
-        if (s->input[0] != ' ' && s->input[0] != '\t' && s->input[0] != '\n'
-        && s->input[0] != '!' && s->input[0] > 0 && s->input[0] < 127) {
-            for (int i = 0; s->input[i] != '\0'; i++)
-                n = i;
-            s->input[n] = '\0';
-            if (s->input[0] == '.' || s->input[0] == '/') {
-                return execute2(argv, env, s);
-            }
-            input_to_arr2(s, env);
-            check_basic2(s);
-            return shell_command2(argv, env, s);
-        }
-    return 0;
+    s->input = malloc(input_size);
+    getline(&s->input, &input_size, stdin);
+    error_handling(s);
+    if (s->nb == my_strlen(s->input))
+        return 0;
+    remove_n(s);
+    error_handling2(s);
+    if (s->nb != 0) {
+        my_printf("%s: Command not found.\n", s->input);
+        return 2;
+    }
+    if (s->input[0] == '.' || s->input[0] == '/')
+        return execute2(argv, env, s);
+    input_to_arr2(s, env);
+    check_basic2(s);
+    return shell_command2(argv, env, s);
 }

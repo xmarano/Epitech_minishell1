@@ -14,6 +14,8 @@ typedef struct S {
     char **arr_path;
     char **arr_execve;
     char **execute;
+    int nb;
+    int nb2;
 } S_t;
 
 void istty(char **argv, char **env, S_t *s);

@@ -61,24 +61,49 @@ void execute(char **argv, char **env, S_t *s)
     }
 }
 
+static void error_handling(S_t *s)
+{
+    s->nb = 0;
+    s->nb2 = 0;
+    for (int i = 0; s->input[i] != '\0'; i++) {
+        if (s->input[i] == ' ' || s->input[i] == '\t' || s->input[i] == '\n')
+            s->nb++;
+    }
+    for (int i = 0; s->input[i] != '\0'; i++) {
+        if (s->input[i] < 0 || s->input[i] > 127)
+            s->nb2++;
+    }
+}
+
+static void program(char **argv, char **env, S_t *s)
+{
+    int n = 0;
+
+    for (int i = 0; s->input[i] != '\0'; i++)
+        n = i;
+    s->input[n] = '\0';
+    if (s->nb2 != 0) {
+        my_printf("%s: Command not found.\n", s->input);
+    } else {
+        if (s->input[0] == '.' || s->input[0] == '/')
+            execute(argv, env, s);
+        input_to_arr(s, env);
+        check_basic(s);
+        shell_command(argv, env, s);
+    }
+}
+
 void istty(char **argv, char **env, S_t *s)
 {
     size_t input_size = 0;
-    int n = 0;
 
     while (1) {
         my_printf("\x1b[38;5;208m" "➤  " "\x1b[36m" "~ " "\x1b[0m");
         s->input = malloc(input_size);
         getline(&s->input, &input_size, stdin);
-        for (int i = 0; s->input[i] != '\0'; i++)
-            n = i;
-        s->input[n] = '\0';
-        if (s->input[0] == '.' || s->input[0] == '/') {
-            execute(argv, env, s);
-        }
-        input_to_arr(s, env);
-        check_basic(s);
-        shell_command(argv, env, s);
+        error_handling(s);
+        if (s->nb != my_strlen(s->input))
+            program(argv, env, s);
     }
     return;
 }
