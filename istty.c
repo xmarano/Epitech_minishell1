@@ -18,7 +18,8 @@ void shell_command(char **argv, char **env, S_t *s)
             s->arr[0] = s->arr_execve[i];
             execve(s->arr[0], s->arr, env);
         }
-        my_printf("%s: Command not found.\n", s->input);
+        if (s->input[0] != '.' && s->input[0] != '/')
+            my_printf("%s: Command not found.\n", s->input);
         exit(0);
     } else {
         wait(NULL);
@@ -45,6 +46,21 @@ void input_to_arr(S_t *s, char **env)
     return;
 }
 
+void execute(char **argv, char **env, S_t *s)
+{
+    int pid_fork = fork();
+
+    if (pid_fork == 0) {
+        s->execute = malloc(10 * sizeof(char *));
+        s->execute[0] = malloc(my_strlen(s->input) * sizeof(char));
+        s->execute[0] = s->input;
+        execve(s->execute[0], s->execute, env);
+        return;
+    } else {
+        wait(NULL);
+    }
+}
+
 void istty(char **argv, char **env, S_t *s)
 {
     size_t input_size = 0;
@@ -54,15 +70,15 @@ void istty(char **argv, char **env, S_t *s)
         my_printf("\x1b[38;5;208m" "➤  " "\x1b[36m" "~ " "\x1b[0m");
         s->input = malloc(input_size);
         getline(&s->input, &input_size, stdin);
-        if (s->input[0] != ' ' && s->input[0] != '\t' && s->input[0] != '\n'
-        && s->input[0] != '!' && s->input[0] > 0 && s->input[0] < 127) {
-            for (int i = 0; s->input[i] != '\0'; i++)
-                n = i;
-            s->input[n] = '\0';
-                input_to_arr(s, env);
-                check_basic(s);
-                shell_command(argv, env, s);
+        for (int i = 0; s->input[i] != '\0'; i++)
+            n = i;
+        s->input[n] = '\0';
+        if (s->input[0] == '.' || s->input[0] == '/') {
+            execute(argv, env, s);
         }
+        input_to_arr(s, env);
+        check_basic(s);
+        shell_command(argv, env, s);
     }
     return;
 }

@@ -7,9 +7,10 @@
 #include "minishell1.h"
 #include "my.h"
 
-void shell_command2(char **argv, char **env, S_t *s)
+int shell_command2(char **argv, char **env, S_t *s)
 {
     int fork_info = fork();
+    int status;
 
     if (fork_info == 0) {
         for (int i = 0; s->arr_execve[i] != NULL; i++) {
@@ -19,9 +20,13 @@ void shell_command2(char **argv, char **env, S_t *s)
             execve(s->arr[0], s->arr, env);
         }
         my_printf("%s: Command not found.\n", s->input);
-        exit(0);
+        return 2;
     } else {
-        wait(NULL);
+        wait(&status);
+        if (WIFEXITED(status))
+            return WEXITSTATUS(status);
+        else
+            return 0;
     }
 }
 
@@ -45,7 +50,29 @@ void input_to_arr2(S_t *s, char **env)
     return;
 }
 
-void isnottty(char **argv, char **env, S_t *s)
+int execute2(char **argv, char **env, S_t *s)
+{
+    int fork_info = fork();
+    int status;
+
+    if (fork_info == 0) {
+        s->execute = malloc(10 * sizeof(char *));
+        s->execute[0] = malloc(my_strlen(s->input) * sizeof(char));
+        s->execute[0] = s->input;
+        execve(s->execute[0], s->execute, env);
+    } else {
+        wait(&status);
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        } else {
+            my_printf("Segmentation fault\n");
+            return 0;
+        }
+    }
+    return 0;
+}
+
+int isnottty(char **argv, char **env, S_t *s)
 {
     size_t input_size = 0;
     int n = 0;
@@ -57,9 +84,12 @@ void isnottty(char **argv, char **env, S_t *s)
             for (int i = 0; s->input[i] != '\0'; i++)
                 n = i;
             s->input[n] = '\0';
+            if (s->input[0] == '.' || s->input[0] == '/') {
+                return execute2(argv, env, s);
+            }
             input_to_arr2(s, env);
             check_basic2(s);
-            shell_command2(argv, env, s);
+            return shell_command2(argv, env, s);
         }
-    return;
+    return 0;
 }

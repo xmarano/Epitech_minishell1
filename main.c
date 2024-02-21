@@ -24,7 +24,7 @@ static void path_to_bin(S_t *s, char **env, int i)
     return;
 }
 
-void shell(char **argv, char **env)
+int shell(char **argv, char **env)
 {
     S_t s;
 
@@ -33,18 +33,18 @@ void shell(char **argv, char **env)
         env[i][2] == 'T' && env[i][3] == 'H')
             path_to_bin(&s, env, i);
     }
-    if (isatty(0))
+    if (isatty(0)) {
         istty(argv, env, &s);
-    else
-        isnottty(argv, env, &s);
+    } else {
+        return isnottty(argv, env, &s);
+    }
     free(s.input);
-    return;
+    return 0;
 }
 
 int main(int argc, char **argv, char **env)
 {
     if (argc != 1)
         return 84;
-    shell(argv, env);
-    return 0;
+    return shell(argv, env);
 }

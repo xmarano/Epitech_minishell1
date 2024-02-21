@@ -13,8 +13,9 @@ typedef struct S {
     char **arr;
     char **arr_path;
     char **arr_execve;
+    char **execute;
 } S_t;
 
 void istty(char **argv, char **env, S_t *s);
-void isnottty(char **argv, char **env, S_t *s);
+int isnottty(char **argv, char **env, S_t *s);
 #endif
