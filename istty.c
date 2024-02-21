@@ -52,8 +52,9 @@ void execute(char **argv, char **env, S_t *s)
 
     if (pid_fork == 0) {
         s->execute = malloc(10 * sizeof(char *));
-        s->execute[0] = malloc(my_strlen(s->input) * sizeof(char));
-        s->execute[0] = s->input;
+        s->execute[0] = malloc(my_strlen(s->input) + 2 * sizeof(char));
+        s->execute[0] = my_strcat(s->execute[0], "./");
+        s->execute[0] = my_strcat(s->execute[0], s->input);
         execve(s->execute[0], s->execute, env);
         return;
     } else {
@@ -85,8 +86,7 @@ static void program(char **argv, char **env, S_t *s)
     if (s->nb2 != 0) {
         my_printf("%s: Command not found.\n", s->input);
     } else {
-        if (s->input[0] == '.' || s->input[0] == '/')
-            execute(argv, env, s);
+        execute(argv, env, s);
         input_to_arr(s, env);
         check_basic(s);
         shell_command(argv, env, s);

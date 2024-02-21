@@ -57,8 +57,9 @@ int execute2(char **argv, char **env, S_t *s)
 
     if (fork_info == 0) {
         s->execute = malloc(10 * sizeof(char *));
-        s->execute[0] = malloc(my_strlen(s->input) * sizeof(char));
-        s->execute[0] = s->input;
+        s->execute[0] = malloc(my_strlen(s->input) + 2 * sizeof(char));
+        s->execute[0] = my_strcat(s->execute[0], "./");
+        s->execute[0] = my_strcat(s->execute[0], s->input);
         execve(s->execute[0], s->execute, env);
     } else {
         wait(&status);
@@ -69,7 +70,8 @@ int execute2(char **argv, char **env, S_t *s)
             return 0;
         }
     }
-    return 0;
+    exit(1);
+    return 1;
 }
 
 static void error_handling(S_t *s)
@@ -114,9 +116,11 @@ int isnottty(char **argv, char **env, S_t *s)
         my_printf("%s: Command not found.\n", s->input);
         return 2;
     }
-    if (s->input[0] == '.' || s->input[0] == '/')
-        return execute2(argv, env, s);
+    if (execute2(argv, env, s) == 0)
+        return 0;
+    else {
     input_to_arr2(s, env);
     check_basic2(s);
     return shell_command2(argv, env, s);
+    }
 }
