@@ -89,7 +89,8 @@ static void remove_n(S_t *s)
 
     for (int i = 0; s->input[i] != '\0'; i++)
         n = i;
-    s->input[n] = '\0';
+    if (s->input[n] == '\n')
+        s->input[n] = '\0';
 }
 
 static void error_handling2(S_t *s)
