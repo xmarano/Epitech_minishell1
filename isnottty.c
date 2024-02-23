@@ -20,7 +20,7 @@ int shell_command2(char **argv, char **env, S_t *s)
             execve(s->arr[0], s->arr, env);
         }
         my_printf("%s: Command not found.\n", s->input);
-        return 2;
+        exit(2);
     } else {
         wait(&status);
         if (WIFEXITED(status))
@@ -102,11 +102,14 @@ static void error_handling2(S_t *s)
     }
 }
 
-void echo_command(char **argv, char **env, S_t *s)
+int echo_command(char **argv, char **env, S_t *s)
 {
     input_to_arr2(s, env);
+    if (my_strcmp(s->arr[0], "setenv") == 0 || my_strcmp(s->arr[0], "cd") == 0)
+        return check_setenv_cd(argv, env, s);
     check_basic2(s);
     shell_command2(argv, env, s);
+    return 0;
 }
 
 int isnottty(char **argv, char **env, S_t *s)
@@ -126,8 +129,7 @@ int isnottty(char **argv, char **env, S_t *s)
         }
         if (execute2(argv, env, s) == 0)
             return 0;
-        else
-            echo_command(argv, env, s);
+        s->r = echo_command(argv, env, s);
     }
     return 0;
 }

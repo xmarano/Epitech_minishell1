@@ -11,9 +11,16 @@ static void path_to_bin(S_t *s, char **env, int i)
 {
     char *path = NULL;
     int j = 0;
-
+    for (int a = 0; env[a] != NULL; a++)
+        j = a;
+    s->env2 = malloc(j * sizeof(char *));
+    for (int a = 0; env[a] != NULL; a++) {
+        s->env2[a] = malloc(my_strlen(env[a]) * sizeof(char));
+        s->env2[a] = my_strcat(s->env2[a], env[a]);
+    }
+    j = 0;
     s->arr_path = malloc(100 * sizeof(char *));
-    path = strtok(env[i] + 5, ":");
+    path = strtok(s->env2[i] + 5, ":");
     while (path != NULL) {
         s->arr_path[j] = malloc(my_strlen(path) * sizeof(char));
         s->arr_path[j] = path;
