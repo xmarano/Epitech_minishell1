@@ -105,7 +105,8 @@ static void error_handling2(S_t *s)
 int echo_command(char **argv, char **env, S_t *s)
 {
     input_to_arr2(s, env);
-    if (my_strcmp(s->arr[0], "setenv") == 0 || my_strcmp(s->arr[0], "cd") == 0)
+    if (my_strcmp(s->arr[0], "setenv") == 0
+    || my_strcmp(s->arr[0], "unsetenv") == 0)
         return check_setenv_cd(argv, env, s);
     check_basic2(s);
     shell_command2(argv, env, s);

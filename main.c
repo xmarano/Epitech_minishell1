@@ -11,6 +11,7 @@ static void path_to_bin(S_t *s, char **env, int i)
 {
     char *path = NULL;
     int j = 0;
+
     for (int a = 0; env[a] != NULL; a++)
         j = a;
     s->env2 = malloc(j * sizeof(char *));
@@ -28,7 +29,6 @@ static void path_to_bin(S_t *s, char **env, int i)
         path = strtok(NULL, ":");
         j++;
     }
-    return;
 }
 
 int shell(char **argv, char **env)

@@ -33,7 +33,7 @@ int do_setenv(char **argv, char **env, S_t *s)
         nb_args = i;
     if (nb_args == 0) {
         for (int i = 0; env[i] != NULL; i++)
-            my_printf("\x1b[36m" "%s\n" "\x1b[0m", env[i]);
+            my_printf("%s\n", env[i]);
         return 0;
     }
     if (nb_args > 2) {
@@ -45,9 +45,24 @@ int do_setenv(char **argv, char **env, S_t *s)
     return 0;
 }
 
+int do_unsetenv(char **argv, char **env, S_t *s)
+{
+    int nb_args = 0;
+
+    for (int i = 0; s->arr[i] != NULL; i++)
+        nb_args = i;
+    if (nb_args == 0) {
+        write(2, "unsetenv: Too few arguments.\n", 30);
+        return 1;
+    }
+    return 0;
+}
+
 int check_setenv_cd(char **argv, char **env, S_t *s)
 {
     if (my_strcmp(s->arr[0], "setenv") == 0)
         return do_setenv(argv, env, s);
+    if (my_strcmp(s->arr[0], "unsetenv") == 0)
+        return do_unsetenv(argv, env, s);
     return 0;
 }
