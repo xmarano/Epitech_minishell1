@@ -21,6 +21,7 @@ typedef struct S {
     int last;
     char *new_line;
     char **env_copy;
+    int env_2_modify;
 } S_t;
 
 void istty(char **argv, char **env, S_t *s);

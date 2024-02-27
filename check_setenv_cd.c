@@ -7,7 +7,7 @@
 #include "minishell1.h"
 #include "my.h"
 
-static void setenv_modify(char **env, S_t *s)
+static void add_setenv(char **env, S_t *s)
 {
     for (int i = 0; env[i] != NULL; i++)
         s->last = i;
@@ -20,7 +20,29 @@ static void setenv_modify(char **env, S_t *s)
     env[s->last + 2] = NULL;
 }
 
-int setenv_error_modify(char **argv, char **env, S_t *s)
+static int check_if_already_exist_and_modify(char **env, S_t *s, int j)
+{
+    int check = 0;
+
+    for (int k = 0; s->arr[1][k] != '\0'; k++) {
+        if (s->arr[1][k] != env[j][k])
+            break;
+        if (env[j][k + 1] == '=') {
+            s->env_2_modify = j;
+            check = 1;
+        }
+    }
+    if (check == 1) {
+        env[s->env_2_modify] = s->arr[1];
+        env[s->env_2_modify] = my_strcat(env[s->env_2_modify], "=");
+        if (s->arr[2] != NULL)
+            env[s->env_2_modify] = my_strcat(env[s->env_2_modify], s->arr[2]);
+        return 1;
+    }
+    return 0;
+}
+
+static int setenv_error_modify_add(char **argv, char **env, S_t *s)
 {
     if (s->arr[1][0] < 65 || s->arr[1][0] > 90 && s->arr[1][0] < 97
     || s->arr[1][0] > 122) {
@@ -35,7 +57,11 @@ int setenv_error_modify(char **argv, char **env, S_t *s)
             return 1;
         }
     }
-    setenv_modify(env, s);
+    for (int j = 0; env[j] != NULL; j++) {
+        if (check_if_already_exist_and_modify(env, s, j) == 1)
+            return 0;
+    }
+    add_setenv(env, s);
     return 0;
 }
 
@@ -54,7 +80,7 @@ int do_setenv(char **argv, char **env, S_t *s)
         write(2, "setenv: Too many arguments.\n", 29);
         return 1;
     }
-    if (setenv_error_modify(argv, env, s) == 1)
+    if (setenv_error_modify_add(argv, env, s) == 1)
         return 1;
     return 0;
 }
