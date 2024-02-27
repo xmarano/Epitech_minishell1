@@ -7,7 +7,20 @@
 #include "minishell1.h"
 #include "my.h"
 
-int do_setenv2(S_t *s)
+static void setenv_modify(char **env, S_t *s)
+{
+    for (int i = 0; env[i] != NULL; i++)
+        s->last = i;
+    s->new_line = malloc(my_strlen(s->arr[1] + 1 * sizeof(char)));
+    s->new_line = my_strcat(s->new_line, s->arr[1]);
+    s->new_line = my_strcat(s->new_line, "=");
+    if (s->arr[2] != NULL)
+        s->new_line = my_strcat(s->new_line, s->arr[2]);
+    env[s->last + 1] = s->new_line;
+    env[s->last + 2] = NULL;
+}
+
+int setenv_error_modify(char **argv, char **env, S_t *s)
 {
     if (s->arr[1][0] < 65 || s->arr[1][0] > 90 && s->arr[1][0] < 97
     || s->arr[1][0] > 122) {
@@ -22,6 +35,7 @@ int do_setenv2(S_t *s)
             return 1;
         }
     }
+    setenv_modify(env, s);
     return 0;
 }
 
@@ -40,9 +54,18 @@ int do_setenv(char **argv, char **env, S_t *s)
         write(2, "setenv: Too many arguments.\n", 29);
         return 1;
     }
-    if (do_setenv2(s) == 1)
+    if (setenv_error_modify(argv, env, s) == 1)
         return 1;
     return 0;
+}
+
+static void unsetenv_modify(char **env, S_t *s, int i, int j)
+{
+    for (int k = 0; s->arr[i][k] != '\0'; k++) {
+        if (s->arr[i][k] != env[j][k])
+            return;
+    }
+    env[j] = NULL;
 }
 
 int do_unsetenv(char **argv, char **env, S_t *s)
@@ -54,6 +77,10 @@ int do_unsetenv(char **argv, char **env, S_t *s)
     if (nb_args == 0) {
         write(2, "unsetenv: Too few arguments.\n", 30);
         return 1;
+    }
+    for (int i = 1; s->arr[i] != NULL; i++) {
+        for (int j = 0; env[j] != NULL; j++)
+            unsetenv_modify(env, s, i, j);
     }
     return 0;
 }

@@ -18,6 +18,9 @@ typedef struct S {
     int nb2;
     char **env2;
     int r;
+    int last;
+    char *new_line;
+    char **env_copy;
 } S_t;
 
 void istty(char **argv, char **env, S_t *s);
