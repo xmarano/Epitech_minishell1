@@ -73,7 +73,7 @@ int do_setenv(char **argv, char **env, S_t *s)
         nb_args = i;
     if (nb_args == 0) {
         for (int i = 0; env[i] != NULL; i++)
-            my_printf("%s\n", env[i]);
+            my_printf("(%d) %s\n", i, env[i]);
         return 0;
     }
     if (nb_args > 2) {
@@ -85,13 +85,27 @@ int do_setenv(char **argv, char **env, S_t *s)
     return 0;
 }
 
+static void unsetenv_replace(char **env, S_t *s)
+{
+    int nb_env = 0;
+
+    for (int i = 0; env[i + 1] != NULL; i++) {
+        if (env[i][0] == '\0') {
+            env[i] = env[i + 1];
+            env[i + 1] = "\0";
+        }
+        nb_env = i + 1;
+    }
+    env[nb_env] = NULL;
+}
+
 static void unsetenv_modify(char **env, S_t *s, int i, int j)
 {
     for (int k = 0; s->arr[i][k] != '\0'; k++) {
         if (s->arr[i][k] != env[j][k])
             return;
     }
-    env[j] = NULL;
+    free(env[j]);
 }
 
 int do_unsetenv(char **argv, char **env, S_t *s)
@@ -108,6 +122,7 @@ int do_unsetenv(char **argv, char **env, S_t *s)
         for (int j = 0; env[j] != NULL; j++)
             unsetenv_modify(env, s, i, j);
     }
+    unsetenv_replace(env, s);
     return 0;
 }
 
