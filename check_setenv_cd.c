@@ -73,7 +73,7 @@ int do_setenv(char **argv, char **env, S_t *s)
         nb_args = i;
     if (nb_args == 0) {
         for (int i = 0; env[i] != NULL; i++)
-            my_printf("(%d) %s\n", i, env[i]);
+            my_printf("%s\n", env[i]);
         return 0;
     }
     if (nb_args > 2) {
