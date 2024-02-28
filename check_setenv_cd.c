@@ -126,11 +126,23 @@ int do_unsetenv(char **argv, char **env, S_t *s)
     return 0;
 }
 
+int do_cd(char **argv, char **env, S_t *s)
+{
+    if (s->arr[2] != NULL) {
+        my_printf("cd: string not in pwd: %s\n", s->arr[1]);
+        return 1;
+    }
+    my_printf("%s: Not a directory.\n", s->arr[1]);
+    return 1;
+}
+
 int check_setenv_cd(char **argv, char **env, S_t *s)
 {
     if (my_strcmp(s->arr[0], "setenv") == 0)
         return do_setenv(argv, env, s);
     if (my_strcmp(s->arr[0], "unsetenv") == 0)
         return do_unsetenv(argv, env, s);
+    if (my_strcmp(s->arr[0], "cd") == 0)
+        return do_cd(argv, env, s);
     return 0;
 }

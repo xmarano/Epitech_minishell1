@@ -9,9 +9,10 @@
 
 int shell_command2(char **argv, char **env, S_t *s)
 {
+    char *str = malloc(my_strlen(s->arr[0]) * sizeof(char));
     int fork_info = fork();
     int status;
-
+    str = my_strcat(str, s->arr[0]);
     if (fork_info == 0) {
         for (int i = 0; s->arr_execve[i] != NULL; i++) {
             free(s->arr[0]);
@@ -19,7 +20,7 @@ int shell_command2(char **argv, char **env, S_t *s)
             s->arr[0] = s->arr_execve[i];
             execve(s->arr[0], s->arr, env);
         }
-        my_printf("%s: Command not found.\n", s->input);
+        my_printf("%s: Command not found.\n", str);
         exit(2);
     } else {
         wait(&status);
@@ -106,7 +107,8 @@ int echo_command(char **argv, char **env, S_t *s)
 {
     input_to_arr2(s, env);
     if (my_strcmp(s->arr[0], "setenv") == 0
-    || my_strcmp(s->arr[0], "unsetenv") == 0)
+    || my_strcmp(s->arr[0], "unsetenv") == 0
+    || my_strcmp(s->arr[0], "cd") == 0)
         return check_setenv_cd(argv, env, s);
     check_basic2(s);
     shell_command2(argv, env, s);
