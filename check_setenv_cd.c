@@ -27,7 +27,7 @@ static int check_if_already_exist_and_modify(char **env, S_t *s, int j)
     for (int k = 0; s->arr[1][k] != '\0'; k++) {
         if (s->arr[1][k] != env[j][k])
             break;
-        if (env[j][k + 1] == '=') {
+        if (env[j][k + 1] == '=' && s->arr[1][k + 1] == '\0') {
             s->env_2_modify = j;
             check = 1;
         }

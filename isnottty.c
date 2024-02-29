@@ -76,7 +76,7 @@ static int check_if_is_dir(char **argv, char **env, S_t *s)
     return 0;
 }
 
-static int test(S_t *s)
+static int cat_slash_before(S_t *s)
 {
     s->execute = malloc(10 * sizeof(char *));
     s->execute[0] = malloc(my_strlen(s->input) + 2 * sizeof(char));
@@ -101,7 +101,7 @@ int execute2(char **argv, char **env, S_t *s)
     int status;
 
     if (fork_info == 0) {
-        test(s);
+        cat_slash_before(s);
         if (check_if_is_dir(argv, env, s) == 1)
             return 0;
         error_architecture(env, s);
@@ -119,19 +119,29 @@ int execute2(char **argv, char **env, S_t *s)
     return 1;
 }
 
+static void update_env(char **argv, char **env, S_t *s)
+{
+    for (int i = 0; env[i] != NULL; i++) {
+        if (env[i][0] == 'P' && env[i][1] == 'A' &&
+        env[i][2] == 'T' && env[i][3] == 'H')
+            path_to_bin(s, env, i);
+    }
+}
+
 int isnottty(char **argv, char **env, S_t *s)
 {
     size_t input_size = 0;
 
     s->input = malloc(input_size);
     while (getline(&s->input, &input_size, stdin) != -1) {
+        update_env(argv, env, s);
         error_handling_backslash(s);
         if (s->nb == my_strlen(s->input))
             return 0;
         remove_n(s);
         error_handling2(s);
         if (s->nb != 0) {
-            my_printf("%s: Command not found.\n", s->input);
+            my_printf("%s: Command not found.\n", s->arr[0]);
             return 2;
         }
         if (execute2(argv, env, s) == 0)

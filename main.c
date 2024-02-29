@@ -7,7 +7,7 @@
 #include "minishell1.h"
 #include "my.h"
 
-static void path_to_bin(S_t *s, char **env, int i)
+void path_to_bin(S_t *s, char **env, int i)
 {
     char *path = NULL;
     int j = 0;

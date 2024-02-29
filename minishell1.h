@@ -29,6 +29,7 @@ typedef struct S {
 void remove_n(S_t *s);
 void error_handling2(S_t *s);
 void error_handling_backslash(S_t *s);
+void path_to_bin(S_t *s, char **env, int i);
 void istty(char **argv, char **env, S_t *s);
 int isnottty(char **argv, char **env, S_t *s);
 int check_setenv_cd(char **argv, char **env, S_t *s);
