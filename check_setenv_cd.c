@@ -141,7 +141,7 @@ int check_setenv_cd(char **argv, char **env, S_t *s)
     if (my_strcmp(s->arr[0], "setenv") == 0)
         return do_setenv(argv, env, s);
     if (my_strcmp(s->arr[0], "unsetenv") == 0)
-        return do_unsetenv(argv, env, s);
+        return 1;
     if (my_strcmp(s->arr[0], "cd") == 0)
         return do_cd(argv, env, s);
     return 0;
