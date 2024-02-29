@@ -22,6 +22,7 @@ SRCLIB	=	lib/my_atoi.c 		\
 SRCNAME	=	main.c				\
 			istty.c 			\
 			isnottty.c 			\
+			isnottty2.c 			\
 			check_setenv_cd.c 	\
 
 LIB 	=	libmy.a

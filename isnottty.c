@@ -7,12 +7,12 @@
 #include "minishell1.h"
 #include "my.h"
 
-int shell_command2(char **argv, char **env, S_t *s)
+static int shell_command2(char **argv, char **env, S_t *s)
 {
-    char *str = malloc(my_strlen(s->arr[0]) * sizeof(char));
     int fork_info = fork();
     int status;
-    str = my_strcat(str, s->arr[0]);
+
+    s->str = my_strcat(s->str, s->arr[0]);
     if (fork_info == 0) {
         for (int i = 0; s->arr_execve[i] != NULL; i++) {
             free(s->arr[0]);
@@ -20,7 +20,7 @@ int shell_command2(char **argv, char **env, S_t *s)
             s->arr[0] = s->arr_execve[i];
             execve(s->arr[0], s->arr, env);
         }
-        my_printf("%s: Command not found.\n", str);
+        my_printf("%s: Command not found.\n", s->str);
         exit(2);
     } else {
         wait(&status);
@@ -37,7 +37,7 @@ static void check_basic2(S_t *s)
         exit(0);
 }
 
-void input_to_arr2(S_t *s, char **env)
+static void input_to_arr2(S_t *s, char **env)
 {
     s->arr = malloc(50 * sizeof(char *));
     s->arr = str_to_word_array(s->input);
@@ -51,58 +51,6 @@ void input_to_arr2(S_t *s, char **env)
     return;
 }
 
-int execute2(char **argv, char **env, S_t *s)
-{
-    int fork_info = fork();
-    int status;
-
-    if (fork_info == 0) {
-        s->execute = malloc(10 * sizeof(char *));
-        s->execute[0] = malloc(my_strlen(s->input) + 2 * sizeof(char));
-        s->execute[0] = my_strcat(s->execute[0], "./");
-        s->execute[0] = my_strcat(s->execute[0], s->input);
-        execve(s->execute[0], s->execute, env);
-    } else {
-        wait(&status);
-        if (WIFEXITED(status)) {
-            return WEXITSTATUS(status);
-        } else {
-            my_printf("Segmentation fault\n");
-            return 0;
-        }
-    }
-    exit(1);
-    return 1;
-}
-
-static void error_handling(S_t *s)
-{
-    s->nb = 0;
-    for (int i = 0; s->input[i] != '\0'; i++) {
-        if (s->input[i] == ' ' || s->input[i] == '\t' || s->input[i] == '\n')
-            s->nb++;
-    }
-}
-
-static void remove_n(S_t *s)
-{
-    int n = 0;
-
-    for (int i = 0; s->input[i] != '\0'; i++)
-        n = i;
-    if (s->input[n] == '\n')
-        s->input[n] = '\0';
-}
-
-static void error_handling2(S_t *s)
-{
-    s->nb = 0;
-    for (int i = 0; s->input[i] != '\0'; i++) {
-        if (s->input[i] < 0 || s->input[i] > 127)
-            s->nb++;
-    }
-}
-
 int echo_command(char **argv, char **env, S_t *s)
 {
     input_to_arr2(s, env);
@@ -111,8 +59,64 @@ int echo_command(char **argv, char **env, S_t *s)
     || my_strcmp(s->arr[0], "cd") == 0)
         return check_setenv_cd(argv, env, s);
     check_basic2(s);
+    s->str = malloc(my_strlen(s->arr[0]) * sizeof(char));
     shell_command2(argv, env, s);
     return 0;
+}
+
+static int check_if_is_dir(char **argv, char **env, S_t *s)
+{
+    struct stat info;
+
+    stat(s->input, &info);
+    if (S_ISDIR(info.st_mode) && s->input[0] == '.' && s->input[1] == '/') {
+        my_printf("%s: Permission denied.\n", s->input);
+        return 1;
+    }
+    return 0;
+}
+
+static int test(S_t *s)
+{
+    s->execute = malloc(10 * sizeof(char *));
+    s->execute[0] = malloc(my_strlen(s->input) + 2 * sizeof(char));
+    s->execute[0] = my_strcat(s->execute[0], "./");
+    s->execute[0] = my_strcat(s->execute[0], s->input);
+    return 0;
+}
+
+static int error_architecture(char **env, S_t *s)
+{
+    execve(s->execute[0], s->execute, env);
+    if (errno == 8) {
+        my_printf("%s: "ARCHI, s->input);
+        exit(3);
+    }
+    return 0;
+}
+
+int execute2(char **argv, char **env, S_t *s)
+{
+    int fork_info = fork();
+    int status;
+
+    if (fork_info == 0) {
+        test(s);
+        if (check_if_is_dir(argv, env, s) == 1)
+            return 0;
+        error_architecture(env, s);
+    } else {
+        wait(&status);
+        if (WEXITSTATUS(status) == 3)
+            exit(1);
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        } else {
+            my_printf("Segmentation fault\n");
+            return 0;
+        }
+    }
+    return 1;
 }
 
 int isnottty(char **argv, char **env, S_t *s)
@@ -121,7 +125,7 @@ int isnottty(char **argv, char **env, S_t *s)
 
     s->input = malloc(input_size);
     while (getline(&s->input, &input_size, stdin) != -1) {
-        error_handling(s);
+        error_handling_backslash(s);
         if (s->nb == my_strlen(s->input))
             return 0;
         remove_n(s);

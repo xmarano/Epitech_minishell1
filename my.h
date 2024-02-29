@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <signal.h>
+#include <sys/stat.h>
+#include <errno.h>
 #ifndef MY_H
     #define MY_H
 int my_put_nbr(int nb);

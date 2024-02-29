@@ -7,6 +7,7 @@
 #include "my.h"
 #ifndef MINISHELL1_H
     #define MINISHELL1_H
+    #define ARCHI "Exec format error. Wrong Architecture.\n"
 
 typedef struct S {
     char *input;
@@ -22,8 +23,12 @@ typedef struct S {
     char *new_line;
     char **env_copy;
     int env_2_modify;
+    char *str;
 } S_t;
 
+void remove_n(S_t *s);
+void error_handling2(S_t *s);
+void error_handling_backslash(S_t *s);
 void istty(char **argv, char **env, S_t *s);
 int isnottty(char **argv, char **env, S_t *s);
 int check_setenv_cd(char **argv, char **env, S_t *s);
