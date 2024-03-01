@@ -119,13 +119,16 @@ int execute2(char **argv, char **env, S_t *s)
     return 1;
 }
 
-static void update_env(char **argv, char **env, S_t *s)
+static int update_env(char **argv, char **env, S_t *s)
 {
     for (int i = 0; env[i] != NULL; i++) {
         if (env[i][0] == 'P' && env[i][1] == 'A' &&
-        env[i][2] == 'T' && env[i][3] == 'H')
+        env[i][2] == 'T' && env[i][3] == 'H') {
             path_to_bin(s, env, i);
+            return 0;
+        }
     }
+    return 1;
 }
 
 int isnottty(char **argv, char **env, S_t *s)
@@ -134,7 +137,8 @@ int isnottty(char **argv, char **env, S_t *s)
 
     s->input = malloc(input_size);
     while (getline(&s->input, &input_size, stdin) != -1) {
-        update_env(argv, env, s);
+        if (update_env(argv, env, s) == 1)
+            s->arr_path[0] = NULL;
         error_handling_backslash(s);
         if (s->nb == my_strlen(s->input))
             return 0;
@@ -146,7 +150,7 @@ int isnottty(char **argv, char **env, S_t *s)
         }
         if (execute2(argv, env, s) == 0)
             return 0;
-        s->r = echo_command(argv, env, s);
+        echo_command(argv, env, s);
     }
     return 0;
 }

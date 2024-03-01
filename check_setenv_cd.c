@@ -90,6 +90,7 @@ static void unsetenv_replace(char **env, S_t *s)
     int nb_env = 0;
 
     for (int i = 0; env[i + 1] != NULL; i++) {
+        my_printf("\x1b[38;5;208m" "boo\n" "\x1b[0m");
         if (env[i][0] == '\0') {
             env[i] = env[i + 1];
             env[i + 1] = "\0";
@@ -99,13 +100,32 @@ static void unsetenv_replace(char **env, S_t *s)
     env[nb_env] = NULL;
 }
 
-static void unsetenv_modify(char **env, S_t *s, int i, int j)
+static void env_modify(char **env, S_t *s, int i, int j)
+{
+    while (env[j + 1] != NULL) {
+        env[j] = my_strcpy(env[j], env[j + 1]);
+        j++;
+    }
+    env[j] = NULL;
+}
+
+static int unsetenv_modify(char **env, S_t *s, int i, int j)
 {
     for (int k = 0; s->arr[i][k] != '\0'; k++) {
         if (s->arr[i][k] != env[j][k])
-            return;
+            return 0;
+        if (s->arr[i][k + 1] == '\0' && env[j][k + 1] == '=')
+            return 1;
     }
-    free(env[j]);
+    return 0;
+}
+
+void do_unsetenv2(char **env, S_t *s, int i, int j)
+{
+    if (unsetenv_modify(env, s, i, j) == 1) {
+        env_modify(env, s, i, j);
+        return;
+    }
 }
 
 int do_unsetenv(char **argv, char **env, S_t *s)
@@ -119,21 +139,11 @@ int do_unsetenv(char **argv, char **env, S_t *s)
         return 1;
     }
     for (int i = 1; s->arr[i] != NULL; i++) {
-        for (int j = 0; env[j] != NULL; j++)
-            unsetenv_modify(env, s, i, j);
+        for (int j = 0; env[j] != NULL; j++) {
+            do_unsetenv2(env, s, i, j);
+        }
     }
-    unsetenv_replace(env, s);
     return 0;
-}
-
-int do_cd(char **argv, char **env, S_t *s)
-{
-    if (s->arr[2] != NULL) {
-        my_printf("cd: string not in pwd: %s\n", s->arr[1]);
-        return 1;
-    }
-    my_printf("%s: Not a directory.\n", s->arr[1]);
-    return 1;
 }
 
 int check_setenv_cd(char **argv, char **env, S_t *s)
@@ -141,7 +151,7 @@ int check_setenv_cd(char **argv, char **env, S_t *s)
     if (my_strcmp(s->arr[0], "setenv") == 0)
         return do_setenv(argv, env, s);
     if (my_strcmp(s->arr[0], "unsetenv") == 0)
-        return 1;
+        return do_unsetenv(argv, env, s);
     if (my_strcmp(s->arr[0], "cd") == 0)
         return do_cd(argv, env, s);
     return 0;

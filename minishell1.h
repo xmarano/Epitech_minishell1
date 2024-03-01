@@ -18,7 +18,6 @@ typedef struct S {
     int nb;
     int nb2;
     char **env2;
-    int r;
     int last;
     char *new_line;
     char **env_copy;
@@ -29,6 +28,7 @@ typedef struct S {
 void remove_n(S_t *s);
 void error_handling2(S_t *s);
 void error_handling_backslash(S_t *s);
+int do_cd(char **argv, char **env, S_t *s);
 void path_to_bin(S_t *s, char **env, int i);
 void istty(char **argv, char **env, S_t *s);
 int isnottty(char **argv, char **env, S_t *s);

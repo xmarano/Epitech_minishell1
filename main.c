@@ -55,3 +55,13 @@ int main(int argc, char **argv, char **env)
         return 84;
     return shell(argv, env);
 }
+
+int do_cd(char **argv, char **env, S_t *s)
+{
+    if (s->arr[2] != NULL) {
+        my_printf("cd: string not in pwd: %s\n", s->arr[1]);
+        return 1;
+    }
+    my_printf("%s: Not a directory.\n", s->arr[1]);
+    return 1;
+}
